@@ -17,6 +17,7 @@
       #   }
       # };
       mkLib = inputs: p: lib: p.callCabal2nix lib inputs."${lib}" { };
+
       # Makes a library from a relative source e.g.
       #
       # # i.e. path is some-hs-libs/sub-dir-lib
@@ -27,19 +28,22 @@
       #   }
       # };
       mkRelLib = rel: p: lib: p.callCabal2nix lib "${rel}/${lib}" { };
+
       # Turns a list of libs into an attr set via mkLib e.g.
       #
       # inputs.some-hs-lib1.url = "github:user/some-hs-lib1";
+      # inputs.some-hs-lib2.url = "github:user/some-hs-lib2";
       # compiler = pkgs.haskell.packages."${ghc-version}".override {
       #   overrides = final: prev: {
       #     ...
-      #   } // nix-hs-utils.mkRelLibs monad-effects final [
+      #   } // nix-hs-utils.mkLibs inputs final [
       #     "some-hs-lib1"
       #     "some-hs-lib2"
       #   ];
       # };
       mkLibs = inputs: p: libs:
         builtins.foldl' (acc: name: acc // { ${name} = mkLib inputs p name; }) { } libs;
+
       # Turns a list of relative libs into an attr set via mkRelLib e.g.
       #
       # # i.e. paths are some-hs-libs/sub-dir-lib1 and some-hs-libs/sub-dir-lib2
@@ -60,6 +64,7 @@
         c.cabal-install
         pkgs.zlib
       ];
+
       # Formatters (cabal-fmt, nixpkgs-fmt, ormolu)
       # Linter (HLint + refactor)
       # HLS
@@ -72,6 +77,7 @@
           (hlib.dontCheck c.ormolu)
           pkgs.nixpkgs-fmt
         ];
+
       # Makes a haskell package via developPackage. The default derivation
       # uses mkDevTools and mkBuildTools.
       mkHaskellPkg =
@@ -88,11 +94,13 @@
         compiler.developPackage {
           inherit name root modifier returnShellEnv;
         };
+
       # Convenience function for making an app from a derivation.
       mkApp = drv: {
         type = "app";
         program = "${drv}/bin/${drv.name}";
       };
+
       # Convenience function for making an app from a writeShellApplication.
       mkShellApp =
         { name
