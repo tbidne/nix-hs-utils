@@ -1,4 +1,6 @@
 let
+  id = x: x;
+
   # Makes a library from source e.g.
   #
   # inputs.some-hs-lib.url = "github:user/some-hs-lib";
@@ -69,21 +71,39 @@ let
       pkgs.nixpkgs-fmt
     ];
 
-  # Makes a haskell package via developPackage. The default derivation
-  # uses mkDevTools and mkBuildTools.
+  # Makes a haskell package via developPackage. The modifier logic is as
+  # follows:
+  #
+  # If baseModifier is true, then we start by adding buildTools per
+  # mkBuildTools and, if returnShellEnv is true, devTools per mkDevTools.
+  #
+  # If baseModifier is false then there is no "base modification" to the
+  # derivation.
+  #
+  # We apply the parameter modifier on top of baseModifier, which defaults
+  # to the identity.
   mkHaskellPkg =
     { name
     , compiler
     , pkgs
     , returnShellEnv
     , root
-    , modifier ? drv:
-        pkgs.haskell.lib.addBuildTools drv
-          (mkBuildTools pkgs compiler ++
-            (if returnShellEnv then mkDevTools pkgs compiler else [ ]))
+    , baseModifier ? true
+    , modifier ? id
     }:
+    let
+      baseModifier' =
+        if baseModifier
+        then drv:
+          pkgs.haskell.lib.addBuildTools drv
+            (mkBuildTools pkgs compiler ++
+              (if returnShellEnv then mkDevTools pkgs compiler else [ ]))
+        else id;
+      modifier' = drv: modifier (baseModifier' drv);
+    in
     compiler.developPackage {
-      inherit name root modifier returnShellEnv;
+      inherit name root returnShellEnv;
+      modifier = modifier';
     };
 in
 {
