@@ -6,9 +6,12 @@
     url = "github:edolstra/flake-compat";
     flake = false;
   };
-  outputs = { flake-compat, self }:
+  inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+  outputs = { flake-compat, nixpkgs, self }:
     let
-      apps = import lib/apps.nix;
+      system = "x86_64-linux";
+      pkgs = import nixpkgs { inherit system; };
+      libApps = import lib/apps.nix;
       misc = import lib/misc.nix;
     in
     {
@@ -20,7 +23,20 @@
         mkBuildTools
         mkDevTools
         mkHaskellPkg;
-      inherit (apps) format
-        lint lint-refactor mkApp mkShellApp;
+      inherit (libApps)
+        format
+        lint
+        lint-refactor
+        mkApp
+        mkShellApp;
+
+      apps."${system}" = {
+        format = libApps.mkShellApp {
+          inherit pkgs;
+          name = "format";
+          text = "nixpkgs-fmt ./";
+          runtimeInputs = [ pkgs.nixpkgs-fmt ];
+        };
+      };
     };
 }
