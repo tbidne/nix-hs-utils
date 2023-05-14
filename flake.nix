@@ -120,8 +120,7 @@
 
       # ShellApp that formats cabal, nix, and haskell via ormolu.
       format =
-        { cabal-file
-        , compiler
+        { compiler
         , hs-dirs
         , pkgs
         , name ? "format"
@@ -135,7 +134,8 @@
 
             nixpkgs-fmt ./
 
-            cabal-fmt --inplace ${cabal-file}
+            # shellcheck disable=SC2046
+            cabal-fmt --inplace $(find . -type f -name '*cabal')
 
             # shellcheck disable=SC2046,SC2086
             ormolu -m inplace $(find ${hs-dirs} -type f -name '*.hs')
