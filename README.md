@@ -1,5 +1,11 @@
 # Nix HS Utils
 
+[![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/tbidne/nix-hs-utils?include_prereleases&sort=semver&labelColor=2f353e)](https://github.com/tbidne/nix-hs-utils/releases/)
+[![ci](http://img.shields.io/github/actions/workflow/status/tbidne/nix-hs-utils/ci.yaml?branch=main)](https://github.com/tbidne/nix-hs-utils/actions/workflows/ci.yaml)
+[![MIT](https://img.shields.io/github/license/tbidne/nix-hs-utils?color=blue&labelColor=2f353e)](https://opensource.org/licenses/MIT)
+
+---
+
 Nix utility functions for haskell flakes.
 
 # Example usage
