@@ -1,5 +1,5 @@
 let
-  id = x: x;
+  utils = import ./utils.nix;
 
   # Makes a library from source e.g.
   #
@@ -58,16 +58,23 @@ let
     pkgs.zlib
   ];
 
-  # Formatters (cabal-fmt, nixpkgs-fmt, ormolu)
+  # Formatters (cabal-fmt, nixpkgs-fmt, ormolu/fourmolu)
   # Linter (HLint + refactor)
   # HLS
-  mkDevTools = pkgs: c:
-    let hlib = pkgs.haskell.lib; in [
-      (hlib.dontCheck c.apply-refact)
-      (hlib.dontCheck c.cabal-fmt)
-      (hlib.dontCheck c.haskell-language-server)
-      (hlib.dontCheck c.hlint)
-      (hlib.dontCheck c.ormolu)
+  mkDevTools =
+    { pkgs
+    , compiler
+    }:
+    let
+      hlib = pkgs.haskell.lib;
+    in
+    [
+      (hlib.dontCheck compiler.apply-refact)
+      (hlib.dontCheck compiler.cabal-fmt)
+      # NOTE: We don't need to explicitly include ormolu/fourmolu because
+      # HLS includes both CLI tools
+      (hlib.dontCheck compiler.haskell-language-server)
+      (hlib.dontCheck compiler.hlint)
       pkgs.nixpkgs-fmt
     ];
 
@@ -89,16 +96,17 @@ let
     , returnShellEnv
     , root
     , baseModifier ? true
-    , modifier ? id
+    , modifier ? utils.id
     }:
     let
+      devTools = mkDevTools { inherit pkgs compiler; };
       baseModifier' =
         if baseModifier
         then drv:
           pkgs.haskell.lib.addBuildTools drv
             (mkBuildTools pkgs compiler ++
-              (if returnShellEnv then mkDevTools pkgs compiler else [ ]))
-        else id;
+              (if returnShellEnv then devTools else [ ]))
+        else utils.id;
       modifier' = drv: modifier (baseModifier' drv);
     in
     compiler.developPackage {

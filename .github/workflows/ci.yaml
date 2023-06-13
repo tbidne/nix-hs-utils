@@ -27,11 +27,34 @@ jobs:
       - name: Check
         run: nix flake check
 
-      - name: Test format
-        run: nix run ./test#format
+      - name: Test dev shell (ormolu)
+        run: |
+          cd test
+          nix develop -c bash -c "cabal build && ormolu --version"
+
+      - name: Test dev shell (fourmolu)
+        run: |
+          cd test
+          nix develop -c bash -c "cabal build && fourmolu --version"
+
+      - name: Test format (ormolu)
+        run: |
+          cd test
+          nix run .#format
+          git diff --exit-code --no-index src/Lib.hs Lib.ormolu
+
+      - name: Test format (fourmolu)
+        run: |
+          cd test
+          nix run .#format-fourmolu
+          git diff --exit-code --no-index src/Lib.hs Lib.fourmolu
 
       - name: Test lint
-        run: nix run ./test#lint
+        run: |
+          cd test
+          nix run .#lint
 
       - name: Test lint-refactor
-        run: nix run ./test#lint-refactor
+        run: |
+          cd test
+          nix run .#lint-refactor

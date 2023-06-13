@@ -1,4 +1,6 @@
 let
+  utils = import ./utils.nix;
+
   # Convenience function for making an app from a derivation.
   mkApp = drv: {
     type = "app";
@@ -18,13 +20,18 @@ let
       }
     );
 
-  # ShellApp that formats cabal, nix, and haskell via ormolu.
+  # ShellApp that formats cabal, nix, and haskell via ormolu (default) or
+  # fourmolu.
   format =
     { compiler
-    , hs-dirs
+    , hsDirs
     , pkgs
     , name ? "format"
+    , hsFmt ? "ormolu"
     }:
+    let
+      hsFmt' = utils.getHsFmt hsFmt;
+    in
     mkShellApp {
       inherit name pkgs;
       text = ''
@@ -38,19 +45,19 @@ let
         cabal-fmt --inplace $(find . -type f -name '*cabal')
 
         # shellcheck disable=SC2046,SC2086
-        ormolu -m inplace $(find ${hs-dirs} -type f -name '*.hs')
+        ${hsFmt'.text hsDirs}
       '';
       runtimeInputs = [
         compiler.cabal-fmt
-        compiler.ormolu
+        (hsFmt'.dep compiler)
         pkgs.nixpkgs-fmt
       ];
     };
 
-  # ShellApp that runs hlint on hs-dirs.
+  # ShellApp that runs hlint on hsDirs.
   lint =
     { compiler
-    , hs-dirs
+    , hsDirs
     , pkgs
     , name ? "lint"
     }:
@@ -62,15 +69,15 @@ let
         export LANG="C.UTF-8"
 
         # shellcheck disable=SC2046,SC2086
-        hlint $(find ${hs-dirs} -type f -name "*.hs")
+        hlint $(find ${hsDirs} -type f -name "*.hs")
       '';
       runtimeInputs = [ compiler.hlint ];
     };
 
-  # ShellApp that runs hlint + refactor on hs-dirs.
+  # ShellApp that runs hlint + refactor on hsDirs.
   lint-refactor =
     { compiler
-    , hs-dirs
+    , hsDirs
     , pkgs
     , name ? "lint-refactor"
     }:
@@ -82,7 +89,7 @@ let
         export LANG="C.UTF-8"
 
         # shellcheck disable=SC2038,SC2086
-        find ${hs-dirs} -type f -name "*.hs" | xargs -I % sh -c " \
+        find ${hsDirs} -type f -name "*.hs" | xargs -I % sh -c " \
           hlint \
           --ignore-glob=dist-newstyle \
           --ignore-glob=stack-work \

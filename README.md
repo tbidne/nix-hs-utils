@@ -60,7 +60,7 @@ Nix utility functions for haskell flakes.
             root = ./.;
           };
         # used in below apps
-        hs-dirs = "app src test";
+        hsDirs = "app src test";
     in
     {
       # builds exe/lib
@@ -72,13 +72,14 @@ Nix utility functions for haskell flakes.
       # formatting and linting
       apps = {
         format = nix-hs-utils.format {
-          inherit compiler hs-dirs pkgs;
+          inherit compiler hsDirs pkgs;
+          # hsFmt = "fourmolu"; # defaults to ormolu
         };
         lint = nix-hs-utils.lint {
-          inherit compiler hs-dirs pkgs;
+          inherit compiler hsDirs pkgs;
         };
         lint-refactor = nix-hs-utils.lint-refactor {
-          inherit compiler hs-dirs pkgs;
+          inherit compiler hsDirs pkgs;
         };
       };
     };

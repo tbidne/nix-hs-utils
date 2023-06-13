@@ -16,18 +16,32 @@
           ormolu = prev.ormolu_0_5_3_0;
         };
       };
-      hs-dirs = ".";
+      hsDirs = "src";
+
+      mkShell =
+        nix-hs-utils.mkHaskellPkg {
+          inherit compiler pkgs;
+          name = "example";
+          root = ./.;
+          returnShellEnv = true;
+        };
     in
     {
+      devShells."${system}".default = mkShell;
+
       apps."${system}" = {
         format = nix-hs-utils.format {
-          inherit compiler hs-dirs pkgs;
+          inherit compiler hsDirs pkgs;
+        };
+        format-fourmolu = nix-hs-utils.format {
+          inherit compiler hsDirs pkgs;
+          hsFmt = "fourmolu";
         };
         lint = nix-hs-utils.lint {
-          inherit compiler hs-dirs pkgs;
+          inherit compiler hsDirs pkgs;
         };
         lint-refactor = nix-hs-utils.lint-refactor {
-          inherit compiler hs-dirs pkgs;
+          inherit compiler hsDirs pkgs;
         };
       };
     };
