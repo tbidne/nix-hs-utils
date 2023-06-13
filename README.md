@@ -8,11 +8,42 @@
 
 Nix utility functions for haskell flakes.
 
+# Schema
+
+## Functions
+
+### High level
+
+* `mkLibs` and `mkRelLibs`: convenience functions for adding packages built by `callCabal2nix`.
+* `mkDevTools`: returns a list with:
+  * formatters: `cabal-fmt`, `fourmolu`, `nixpkgs-fmt`, `ormolu`.
+  * linters: `hlint` (with `apply-refact`).
+  * `haskell-language-server`.
+* `mkHaskellPkg`: Wrapper for `developPackage`. Returns either a development shell or a derivation, depending on the value of `returnShellEnv`. Uses `mkDevTools` by default.
+
+### Low level
+
+* `mkLib` and `mkRelLib`: singular versions of `mkLibs` and `mkRelLibs`, respectively.
+* `mkBuildTools`: function returning a list of `cabal` and `zlib`.
+
+## Apps
+
+### High level
+
+* `format`: formats `*.cabal`, `*.nix`, and `*.hs` (`ormolu` or `fourmolu`).
+* `lint`: Runs `hlint` on `*.hs`.
+* `lint-refactor`: Runs `hlint` on `*.hs`, refactoring suggestions.
+
+### Low level
+
+* `mkShellApp`: Makes an app via `writeShellApplication`.
+* `mkApp`: Makes an app via a derivation.
+
 # Example usage
 
 ```nix
 {
-  description = "Some flake";
+  description = "A flake for a haskell package";
   inputs = {
     nix-hs-utils.url = "github:tbidne/nix-hs-utils";
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
@@ -26,8 +57,7 @@ Nix utility functions for haskell flakes.
     libs.url = "github:user/libs";
   };
   outputs =
-    inputs@{ libs
-    , nix-hs-utils
+    inputs@{ nix-hs-utils
     , nixpkgs
     , self
     , ...
@@ -47,8 +77,8 @@ Nix utility functions for haskell flakes.
             // nix-hs-utils.mkLibs inputs final [
               "lib1"
               "lib2"
-          ] # adding libs relative deps
-            // nix-hs-utils.mkRelLibs libs final [
+          ] # adding libs' relative deps
+            // nix-hs-utils.mkRelLibs inputs.libs final [
               "sublib1"
               "sublib2"
           ];
