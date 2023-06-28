@@ -1,56 +1,34 @@
 let
   utils = import ./utils.nix;
 
-  # Makes a library from source e.g.
-  #
-  # inputs.some-hs-lib.url = "github:user/some-hs-lib";
-  # compiler = pkgs.haskell.packages."${ghc-version}".override {
-  #   overrides = final: prev: {
-  #     some-hs-lib = nix-hs-utils.mkLib inputs final "some-hs-lib";
-  #   }
-  # };
+  /* Makes a library from source.
+
+     Example:
+       inputs.some-hs-lib.url = "github:user/some-hs-lib";
+       compiler = pkgs.haskell.packages."${ghc-version}".override {
+         overrides = final: prev: {
+           some-hs-lib = nix-hs-utils.mkLib inputs final "some-hs-lib";
+         }
+       };
+
+     Type: mkLib :: AttrSet -> AttrSet -> String -> Derivation
+  */
   mkLib = inputs: p: lib: p.callCabal2nix lib inputs."${lib}" { };
 
-  # Makes a library from a relative source e.g.
-  #
-  # # i.e. path is some-hs-libs/sub-dir-lib
-  # inputs.some-hs-libs.url = "github:user/some-hs-libs";
-  # compiler = pkgs.haskell.packages."${ghc-version}".override {
-  #   overrides = final: prev: {
-  #     sub-dir-lib = nix-hs-utils.mkRelLib some-hs-libs final "sub-dir-lib"
-  #   }
-  # };
+  /* Makes a library from a relative source.
+
+     Example:
+       # i.e. path is some-hs-libs/sub-dir-lib
+       inputs.some-hs-libs.url = "github:user/some-hs-libs";
+       compiler = pkgs.haskell.packages."${ghc-version}".override {
+         overrides = final: prev: {
+           sub-dir-lib = nix-hs-utils.mkRelLib some-hs-libs final "sub-dir-lib"
+         }
+       };
+
+     Type: mkRelLib :: AttrSet -> AttrSet -> String -> Derivation
+  */
   mkRelLib = rel: p: lib: p.callCabal2nix lib "${rel}/${lib}" { };
-
-  # Turns a list of libs into an attr set via mkLib e.g.
-  #
-  # inputs.some-hs-lib1.url = "github:user/some-hs-lib1";
-  # inputs.some-hs-lib2.url = "github:user/some-hs-lib2";
-  # compiler = pkgs.haskell.packages."${ghc-version}".override {
-  #   overrides = final: prev: {
-  #     ...
-  #   } // nix-hs-utils.mkLibs inputs final [
-  #     "some-hs-lib1"
-  #     "some-hs-lib2"
-  #   ];
-  # };
-  mkLibs = inputs: p: libs:
-    builtins.foldl' (acc: name: acc // { ${name} = mkLib inputs p name; }) { } libs;
-
-  # Turns a list of relative libs into an attr set via mkRelLib e.g.
-  #
-  # # i.e. paths are some-hs-libs/sub-dir-lib1 and some-hs-libs/sub-dir-lib2
-  # inputs.some-hs-libs.url = "github:user/some-hs-libs";
-  # compiler = pkgs.haskell.packages."${ghc-version}".override {
-  #   overrides = final: prev: {
-  #     ...
-  #   } // nix-hs-utils.mkRelLibs some-hs-libs final [
-  #     "sub-dir-lib1"
-  #     "sub-dir-lib2"
-  #   ];
-  # };
-  mkRelLibs = rel: p: libs:
-    builtins.foldl' (acc: x: acc // { ${x} = mkRelLib rel p x; }) { } libs;
 
   # Cabal and zlib
   mkBuildTools = pkgs: c: [
@@ -77,6 +55,51 @@ let
       (hlib.dontCheck compiler.hlint)
       pkgs.nixpkgs-fmt
     ];
+in
+{
+  inherit
+    mkLib
+    mkRelLib
+    mkBuildTools
+    mkDevTools;
+
+  /* Turns a list of libs into an attr set via mkLib.
+
+     Example:
+       inputs.some-hs-lib1.url = "github:user/some-hs-lib1";
+       inputs.some-hs-lib2.url = "github:user/some-hs-lib2";
+       compiler = pkgs.haskell.packages."${ghc-version}".override {
+         overrides = final: prev: {
+           ...
+         } // nix-hs-utils.mkLibs inputs final [
+           "some-hs-lib1"
+           "some-hs-lib2"
+         ];
+      };
+
+     Type: mkLibs :: AttrSet -> AttrSet -> List String -> Derivation
+  */
+  mkLibs = inputs: p: libs:
+    builtins.foldl' (acc: name: acc // { ${name} = mkLib inputs p name; }) { } libs;
+
+  /* Turns a list of relative libs into an attr set via mkRelLib.
+
+     Example:
+       # i.e. paths are some-hs-libs/sub-dir-lib1 and some-hs-libs/sub-dir-lib2
+       inputs.some-hs-libs.url = "github:user/some-hs-libs";
+       compiler = pkgs.haskell.packages."${ghc-version}".override {
+         overrides = final: prev: {
+           ...
+         } // nix-hs-utils.mkRelLibs some-hs-libs final [
+           "sub-dir-lib1"
+           "sub-dir-lib2"
+         ];
+       };
+
+    Type: mkRelLibs :: AttrSet -> AttrSet -> List String -> Derivation
+  */
+  mkRelLibs = rel: p: libs:
+    builtins.foldl' (acc: x: acc // { ${x} = mkRelLib rel p x; }) { } libs;
 
   /* Derivation for a haskell package via developPackage. The following
      fields are mandatory:
@@ -110,7 +133,7 @@ let
          Applies the modifier on top of the base modifier. Defaults to the
          identity function.
 
-    Example:
+     Example:
       let
         pkgs = import nixpkgs { inherit system; };
         compiler = pkgs.haskell.packages.ghc945;
@@ -123,8 +146,7 @@ let
           modifier = drv: addTestToolDepend pkgs.git drv
         };
 
-     Type:
-       mkHaskellPkg :: AttrSet -> Derivation
+     Type: mkHaskellPkg :: AttrSet -> Derivation
   */
   mkHaskellPkg =
     { name
@@ -154,14 +176,4 @@ let
       inherit name root returnShellEnv;
       modifier = modifier';
     };
-in
-{
-  inherit
-    mkLib
-    mkRelLib
-    mkLibs
-    mkRelLibs
-    mkBuildTools
-    mkDevTools
-    mkHaskellPkg;
 }

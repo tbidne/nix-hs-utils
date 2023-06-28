@@ -1,6 +1,4 @@
 let
-  id = x: x;
-
   showKeys = attrs:
     let attrKeys = builtins.attrNames attrs;
     in builtins.concatStringsSep ", " attrKeys;
@@ -24,5 +22,7 @@ let
   getHsFmt = hsFmtName: lookupOrDie nameToHsFmt hsFmtName "haskell formatter";
 in
 {
-  inherit getHsFmt id showKeys lookupOrDie;
+  id = x: x;
+
+  getHsFmt = hsFmtName: lookupOrDie nameToHsFmt hsFmtName "haskell formatter";
 }

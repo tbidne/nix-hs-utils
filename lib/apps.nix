@@ -19,6 +19,9 @@ let
         inherit name text runtimeInputs;
       }
     );
+in
+{
+  inherit mkApp mkShellApp;
 
   # ShellApp that formats cabal, nix, and haskell via ormolu (default) or
   # fourmolu.
@@ -100,12 +103,4 @@ let
       '';
       runtimeInputs = [ compiler.apply-refact compiler.hlint ];
     };
-in
-{
-  inherit
-    mkApp
-    mkShellApp
-    format
-    lint
-    lint-refactor;
 }
