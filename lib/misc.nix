@@ -78,17 +78,54 @@ let
       pkgs.nixpkgs-fmt
     ];
 
-  # Makes a haskell package via developPackage. The modifier logic is as
-  # follows:
-  #
-  # If baseModifier is true, then we start by adding buildTools per
-  # mkBuildTools and, if returnShellEnv is true, devTools per mkDevTools.
-  #
-  # If baseModifier is false then there is no "base modification" to the
-  # derivation.
-  #
-  # We apply the parameter modifier on top of baseModifier, which defaults
-  # to the identity.
+  /* Derivation for a haskell package via developPackage. The following
+     fields are mandatory:
+
+     - name (String):
+         Haskell package name.
+
+     - compiler:
+         The haskell compiler to use.
+
+     - pkgs: Nixpkgs.
+
+     - returnShellEnv (Boolean):
+         If true, returns a shell suitable for 'nix develop'. Otherwise returns
+         a derivation.
+
+     - root (Path):
+         The root directory (i.e. directory with the cabal file).
+
+     The following fields are optional:
+
+     - baseModifier (Boolean):
+         If true (default), we start by adding build tools per mkBuildTools
+         and, if returnShellEnv is true, dev tools per devTools.
+
+     - devTools (List):
+         If null (default), uses mkDevTools. Note this field is only used if
+         baseModifier and returnShellEnv are true.
+
+     - modifier (Derivation -> Derivation):
+         Applies the modifier on top of the base modifier. Defaults to the
+         identity function.
+
+    Example:
+      let
+        pkgs = import nixpkgs { inherit system; };
+        compiler = pkgs.haskell.packages.ghc945;
+      in mkHaskellPkg
+        { inherit compiler pkgs;
+          name = "my-haskell-pkg";
+          returnShellEnv = true;
+          root = ./.;
+          devTools = [ compiler.haskell-language-server ]
+          modifier = drv: addTestToolDepend pkgs.git drv
+        };
+
+     Type:
+       mkHaskellPkg :: AttrSet -> Derivation
+  */
   mkHaskellPkg =
     { name
     , compiler
@@ -96,16 +133,20 @@ let
     , returnShellEnv
     , root
     , baseModifier ? true
+    , devTools ? null
     , modifier ? utils.id
     }:
     let
-      devTools = mkDevTools { inherit pkgs compiler; };
+      devTools' =
+        if devTools == null
+        then mkDevTools { inherit pkgs compiler; }
+        else devTools;
       baseModifier' =
         if baseModifier
         then drv:
           pkgs.haskell.lib.addBuildTools drv
             (mkBuildTools pkgs compiler ++
-              (if returnShellEnv then devTools else [ ]))
+              (if returnShellEnv then devTools' else [ ]))
         else utils.id;
       modifier' = drv: modifier (baseModifier' drv);
     in
