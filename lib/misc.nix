@@ -31,10 +31,14 @@ let
   mkRelLib = rel: p: lib: p.callCabal2nix lib "${rel}/${lib}" { };
 
   # Cabal and zlib
-  mkBuildTools = pkgs: c: [
-    c.cabal-install
-    pkgs.zlib
-  ];
+  mkBuildTools =
+    { pkgs
+    , compiler
+    }:
+    [
+      compiler.cabal-install
+      pkgs.zlib
+    ];
 
   # Formatters (cabal-fmt, nixpkgs-fmt, ormolu/fourmolu)
   # Linter (HLint + refactor)
@@ -159,15 +163,16 @@ in
     , modifier ? utils.id
     }:
     let
+      pkgsCompiler = { inherit pkgs compiler; };
       devTools' =
         if devTools == null
-        then mkDevTools { inherit pkgs compiler; }
+        then mkDevTools pkgsCompiler
         else devTools;
       baseModifier' =
         if baseModifier
         then drv:
           pkgs.haskell.lib.addBuildTools drv
-            (mkBuildTools pkgs compiler ++
+            (mkBuildTools pkgsCompiler ++
               (if returnShellEnv then devTools' else [ ]))
         else utils.id;
       modifier' = drv: modifier (baseModifier' drv);
