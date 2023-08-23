@@ -89,27 +89,32 @@ Nix utility functions for haskell flakes.
             name = "my-hs-pkg-name";
             root = ./.;
           };
-        # used in below apps
-        hsDirs = "app src test";
     in
     {
       # builds exe/lib
-      packages.default = mkPkg false;
+      packages."${system}".default = mkPkg false;
 
       # dev shell w/ default build/dev tools
-      devShells.default = mkPkg true;
+      devShells."${system}".default = mkPkg true;
 
       # formatting and linting
       apps = {
         format = nix-hs-utils.format {
-          inherit compiler hsDirs pkgs;
+          inherit compiler pkgs;
           # hsFmt = "fourmolu"; # defaults to ormolu
         };
+        # Use find over fd. Probably need to explicitly pass in dirs
+        # (findHsArgs) in this case.
+        format-find = nix-hs-utils.format {
+          inherit compiler pkgs;
+          findHsArgs = "app src test";
+          fd = false;
+        };
         lint = nix-hs-utils.lint {
-          inherit compiler hsDirs pkgs;
+          inherit compiler pkgs;
         };
         lint-refactor = nix-hs-utils.lint-refactor {
-          inherit compiler hsDirs pkgs;
+          inherit compiler pkgs;
         };
       };
     };

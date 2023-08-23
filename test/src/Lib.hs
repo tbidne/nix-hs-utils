@@ -4,7 +4,7 @@ module Lib where
 -- a way that it takes fourmolu.yaml into account
 hello :: IO ()
 hello = do
-  putStrLn "hello"
-  putStrLn greeting
+       putStrLn "hello"
+       putStrLn greeting
   where
     greeting = "there"

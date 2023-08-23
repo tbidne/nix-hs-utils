@@ -1,0 +1,3 @@
+# fd automatically ignores, which is tested on ci (fd will fail on
+# dist-newstyle that is produced by cabal build)
+/dist-newstyle

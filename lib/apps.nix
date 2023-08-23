@@ -27,13 +27,25 @@ in
   # fourmolu.
   format =
     { compiler
-    , hsDirs
     , pkgs
-    , name ? "format"
+    , fd ? true
+    , findHsArgs ? "."
+    , findCabalArgs ? "."
     , hsFmt ? "ormolu"
+    , name ? "format"
     }:
     let
       hsFmt' = utils.getHsFmt hsFmt;
+      cabalArgs = {
+        inherit fd;
+        findArgs = findCabalArgs;
+        ext = "cabal";
+      };
+      hsArgs = {
+        inherit fd;
+        findArgs = findHsArgs;
+        ext = "hs";
+      };
     in
     mkShellApp {
       inherit name pkgs;
@@ -44,26 +56,36 @@ in
 
         nixpkgs-fmt ./
 
-        # shellcheck disable=SC2046
-        cabal-fmt --inplace $(find . -type f -name '*cabal')
+        # shellcheck disable=SC2034,SC2046
+        cabal-fmt --inplace $(${utils.findCmd cabalArgs})
 
-        # shellcheck disable=SC2046,SC2086
-        ${hsFmt'.text hsDirs}
+        # shellcheck disable=SC2046
+        ${hsFmt'.cmd hsArgs}
       '';
       runtimeInputs = [
         compiler.cabal-fmt
         (hsFmt'.dep compiler)
+        pkgs.fd
+        pkgs.findutils
         pkgs.nixpkgs-fmt
       ];
     };
 
-  # ShellApp that runs hlint on hsDirs.
+  # ShellApp that runs hlint on findHsArgs.
   lint =
     { compiler
-    , hsDirs
     , pkgs
+    , fd ? true
+    , findHsArgs ? "."
     , name ? "lint"
     }:
+    let
+      hsArgs = {
+        inherit fd;
+        findArgs = findHsArgs;
+        ext = "hs";
+      };
+    in
     mkShellApp {
       inherit name pkgs;
       text = ''
@@ -71,19 +93,27 @@ in
 
         export LANG="C.UTF-8"
 
-        # shellcheck disable=SC2046,SC2086
-        hlint $(find ${hsDirs} -type f -name "*.hs")
+        # shellcheck disable=SC2046
+        hlint $(${utils.findCmd hsArgs})
       '';
-      runtimeInputs = [ compiler.hlint ];
+      runtimeInputs = [ compiler.hlint pkgs.fd pkgs.findutils ];
     };
 
-  # ShellApp that runs hlint + refactor on hsDirs.
+  # ShellApp that runs hlint + refactor on findHsArgs.
   lint-refactor =
     { compiler
-    , hsDirs
     , pkgs
+    , fd ? true
+    , findHsArgs ? "."
     , name ? "lint-refactor"
     }:
+    let
+      hsArgs = {
+        inherit fd;
+        findArgs = findHsArgs;
+        ext = "hs";
+      };
+    in
     mkShellApp {
       inherit name pkgs;
       text = ''
@@ -91,8 +121,8 @@ in
 
         export LANG="C.UTF-8"
 
-        # shellcheck disable=SC2038,SC2086
-        find ${hsDirs} -type f -name "*.hs" | xargs -I % sh -c " \
+        # shellcheck disable=SC2038
+        ${utils.findCmd hsArgs} | xargs -I % sh -c " \
           hlint \
           --ignore-glob=dist-newstyle \
           --ignore-glob=stack-work \
@@ -101,6 +131,11 @@ in
           --refactor-options=-i \
           %"
       '';
-      runtimeInputs = [ compiler.apply-refact compiler.hlint ];
+      runtimeInputs = [
+        compiler.apply-refact
+        compiler.hlint
+        pkgs.fd
+        pkgs.findutils
+      ];
     };
 }

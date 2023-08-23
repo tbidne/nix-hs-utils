@@ -10,18 +10,25 @@ let
 
   nameToHsFmt = {
     "ormolu" = {
-      text = hsDirs: "ormolu -m inplace $(find ${hsDirs} -type f -name '*.hs')";
+      cmd = findArgs: "ormolu -m inplace $(${findCmd findArgs})";
       dep = c: c.ormolu;
     };
     "fourmolu" = {
-      text = hsDirs: "fourmolu -m inplace $(find ${hsDirs} -type f -name '*.hs')";
+      cmd = findArgs: "fourmolu -m inplace $(${findCmd findArgs})";
       dep = c: c.fourmolu;
     };
   };
 
   getHsFmt = hsFmtName: lookupOrDie nameToHsFmt hsFmtName "haskell formatter";
+
+  findCmd = args:
+    if args.fd
+    then "fd ${args.findArgs} -e ${args.ext}"
+    else "find ${args.findArgs} -type f -name '*${args.ext}'";
 in
 {
+  inherit findCmd;
+
   id = x: x;
 
   getHsFmt = hsFmtName: lookupOrDie nameToHsFmt hsFmtName "haskell formatter";

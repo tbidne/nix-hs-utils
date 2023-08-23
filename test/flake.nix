@@ -16,32 +16,44 @@
           ormolu = prev.ormolu_0_5_3_0;
         };
       };
-      hsDirs = "src";
+      findHsArgs = "src";
 
-      mkShell =
+      mkShell = returnShellEnv:
         nix-hs-utils.mkHaskellPkg {
-          inherit compiler pkgs;
+          inherit compiler pkgs returnShellEnv;
           name = "example";
           root = ./.;
-          returnShellEnv = true;
         };
     in
     {
-      devShells."${system}".default = mkShell;
+      packages."${system}".default = mkShell false;
+      devShells."${system}".default = mkShell true;
 
       apps."${system}" = {
         format = nix-hs-utils.format {
-          inherit compiler hsDirs pkgs;
+          inherit compiler pkgs;
         };
         format-fourmolu = nix-hs-utils.format {
-          inherit compiler hsDirs pkgs;
+          inherit compiler pkgs;
           hsFmt = "fourmolu";
         };
+        format-find = nix-hs-utils.format {
+          inherit compiler findHsArgs pkgs;
+          fd = false;
+        };
         lint = nix-hs-utils.lint {
-          inherit compiler hsDirs pkgs;
+          inherit compiler pkgs;
+        };
+        lint-find = nix-hs-utils.lint {
+          inherit compiler findHsArgs pkgs;
+          fd = false;
         };
         lint-refactor = nix-hs-utils.lint-refactor {
-          inherit compiler hsDirs pkgs;
+          inherit compiler pkgs;
+        };
+        lint-refactor-find = nix-hs-utils.lint-refactor {
+          inherit compiler findHsArgs pkgs;
+          fd = false;
         };
       };
     };
