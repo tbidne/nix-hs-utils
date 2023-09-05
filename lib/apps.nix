@@ -71,6 +71,39 @@ in
       ];
     };
 
+  formatHs =
+    { compiler
+    , pkgs
+    , fd ? true
+    , findHsArgs ? "."
+    , hsFmt ? "ormolu"
+    , name ? "format"
+    }:
+    let
+      hsFmt' = utils.getHsFmt hsFmt;
+      hsArgs = {
+        inherit fd;
+        findArgs = findHsArgs;
+        ext = "hs";
+      };
+    in
+    mkShellApp {
+      inherit name pkgs;
+      text = ''
+        set -e
+
+        export LANG="C.UTF-8"
+
+        # shellcheck disable=SC2046
+        ${hsFmt'.cmd hsArgs}
+      '';
+      runtimeInputs = [
+        (hsFmt'.dep compiler)
+        pkgs.fd
+        pkgs.findutils
+      ];
+    };
+
   # ShellApp that runs hlint on findHsArgs.
   lint =
     { compiler
@@ -100,12 +133,12 @@ in
     };
 
   # ShellApp that runs hlint + refactor on findHsArgs.
-  lint-refactor =
+  lintRefactor =
     { compiler
     , pkgs
     , fd ? true
     , findHsArgs ? "."
-    , name ? "lint-refactor"
+    , name ? "lintRefactor"
     }:
     let
       hsArgs = {

@@ -31,8 +31,9 @@ Nix utility functions for haskell flakes.
 ### High level
 
 * `format`: formats `*.cabal`, `*.nix`, and `*.hs` (`ormolu` or `fourmolu`).
+* `formatHs`: formats `*.hs` (`ormolu` or `fourmolu`).
 * `lint`: Runs `hlint` on `*.hs`.
-* `lint-refactor`: Runs `hlint` on `*.hs`, refactoring suggestions.
+* `lintRefactor`: Runs `hlint` on `*.hs`, refactoring suggestions.
 
 ### Low level
 
@@ -103,9 +104,13 @@ Nix utility functions for haskell flakes.
           inherit compiler pkgs;
           # hsFmt = "fourmolu"; # defaults to ormolu
         };
-        # Use find over fd. Probably need to explicitly pass in dirs
+        # Formats haskell files only
+        formatHs = nix-hs-utils.formatHs {
+          inherit compiler pkgs;
+        };
+        # Use find over fd. Probably want to explicitly pass in dirs
         # (findHsArgs) in this case.
-        format-find = nix-hs-utils.format {
+        formatFind = nix-hs-utils.format {
           inherit compiler pkgs;
           findHsArgs = "app src test";
           fd = false;
@@ -113,7 +118,7 @@ Nix utility functions for haskell flakes.
         lint = nix-hs-utils.lint {
           inherit compiler pkgs;
         };
-        lint-refactor = nix-hs-utils.lint-refactor {
+        lintRefactor = nix-hs-utils.lintRefactor {
           inherit compiler pkgs;
         };
       };

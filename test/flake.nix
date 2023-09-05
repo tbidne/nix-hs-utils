@@ -24,15 +24,16 @@
           name = "example";
           root = ./.;
         };
+
+      compilerPkgs = { inherit compiler pkgs; };
     in
     {
       packages."${system}".default = mkShell false;
       devShells."${system}".default = mkShell true;
 
       apps."${system}" = {
-        format = nix-hs-utils.format {
-          inherit compiler pkgs;
-        };
+        # formatting
+        format = nix-hs-utils.format compilerPkgs;
         format-fourmolu = nix-hs-utils.format {
           inherit compiler pkgs;
           hsFmt = "fourmolu";
@@ -41,17 +42,18 @@
           inherit compiler findHsArgs pkgs;
           fd = false;
         };
-        lint = nix-hs-utils.lint {
-          inherit compiler pkgs;
-        };
+        formatHs = nix-hs-utils.formatHs compilerPkgs;
+
+        # lint
+        lint = nix-hs-utils.lint compilerPkgs;
         lint-find = nix-hs-utils.lint {
           inherit compiler findHsArgs pkgs;
           fd = false;
         };
-        lint-refactor = nix-hs-utils.lint-refactor {
-          inherit compiler pkgs;
-        };
-        lint-refactor-find = nix-hs-utils.lint-refactor {
+
+        # lintRefactor
+        lintRefactor = nix-hs-utils.lintRefactor compilerPkgs;
+        lintRefactor-find = nix-hs-utils.lintRefactor {
           inherit compiler findHsArgs pkgs;
           fd = false;
         };

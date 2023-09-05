@@ -3,12 +3,12 @@
     "nix-hs-utils": {
       "locked": {
         "lastModified": 0,
-        "narHash": "sha256-0Io1BQxTXnubgsPquhr+sDbY2mHOfQvX8mmYucFfTZM=",
-        "path": "/nix/store/8q2487ipshnzg6w773lvnkkpdwiqxz5x-source",
+        "narHash": "sha256-r87sLppIk318N0MIw4BrnvF1w/o/KzDvNMAZ3Q+f2O4=",
+        "path": "/nix/store/9s8cpv00h4wzry2hjh9nqbc911br6lgz-source",
         "type": "path"
       },
       "original": {
-        "path": "/nix/store/8q2487ipshnzg6w773lvnkkpdwiqxz5x-source",
+        "path": "/nix/store/9s8cpv00h4wzry2hjh9nqbc911br6lgz-source",
         "type": "path"
       }
     },
