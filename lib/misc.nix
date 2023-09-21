@@ -30,13 +30,14 @@ let
   */
   mkRelLib = rel: p: lib: p.callCabal2nix lib "${rel}/${lib}" { };
 
-  # Cabal and zlib
+  # Cabal GHC, and zlib
   mkBuildTools =
     { pkgs
     , compiler
     }:
     [
       compiler.cabal-install
+      compiler.ghc
       pkgs.zlib
     ];
 
