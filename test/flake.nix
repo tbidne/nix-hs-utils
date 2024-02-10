@@ -26,8 +26,7 @@
         };
 
       compilerPkgs = { inherit compiler pkgs; };
-    in
-    {
+    in {
       packages."${system}".default = mkShell false;
       devShells."${system}".default = mkShell true;
 

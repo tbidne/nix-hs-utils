@@ -58,7 +58,7 @@ let
       # HLS includes both CLI tools
       (hlib.dontCheck compiler.haskell-language-server)
       (hlib.dontCheck compiler.hlint)
-      pkgs.nixpkgs-fmt
+      pkgs.nixfmt
     ];
 in
 {

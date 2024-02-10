@@ -29,8 +29,9 @@ in
     { compiler
     , pkgs
     , fd ? true
-    , findHsArgs ? "."
     , findCabalArgs ? "."
+    , findHsArgs ? "."
+    , findNixArgs ? "."
     , hsFmt ? "ormolu"
     , name ? "format"
     }:
@@ -46,6 +47,11 @@ in
         findArgs = findHsArgs;
         ext = "hs";
       };
+      nixArgs = {
+        inherit fd;
+        findArgs = findNixArgs;
+        ext = "nix";
+      };
     in
     mkShellApp {
       inherit name pkgs;
@@ -54,10 +60,11 @@ in
 
         export LANG="C.UTF-8"
 
-        nixpkgs-fmt ./
+        # shellcheck disable=SC2046
+        ${pkgs.nixfmt}/bin/nixfmt $(${utils.findCmd nixArgs})
 
         # shellcheck disable=SC2034,SC2046
-        cabal-fmt --inplace $(${utils.findCmd cabalArgs})
+        ${compiler.cabal-fmt}/bin/cabal-fmt --inplace $(${utils.findCmd cabalArgs})
 
         # shellcheck disable=SC2046
         ${hsFmt'.cmd hsArgs}
@@ -67,7 +74,7 @@ in
         (hsFmt'.dep compiler)
         pkgs.fd
         pkgs.findutils
-        pkgs.nixpkgs-fmt
+        pkgs.nixfmt
       ];
     };
 
