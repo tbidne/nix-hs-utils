@@ -41,15 +41,18 @@ let
       pkgs.zlib
     ];
 
-  # Formatters (cabal-fmt, nixpkgs-fmt, ormolu/fourmolu)
+  # Formatters (cabal-fmt, nix formatter, ormolu/fourmolu)
   # Linter (HLint + refactor)
   # HLS
   mkDevTools =
     { pkgs
     , compiler
+    # see NOTE: [nixpkgs-fmt vs. nixfmt]
+    , nixFmt ? "nixpkgs-fmt"
     }:
     let
       hlib = pkgs.haskell.lib;
+      nixFmt' = utils.getNixFmt nixFmt;
     in
     [
       (hlib.dontCheck compiler.apply-refact)
@@ -58,7 +61,7 @@ let
       # HLS includes both CLI tools
       (hlib.dontCheck compiler.haskell-language-server)
       (hlib.dontCheck compiler.hlint)
-      pkgs.nixfmt
+      (nixFmt'.dep pkgs)
     ];
 in
 {
@@ -138,6 +141,10 @@ in
          Applies the modifier on top of the base modifier. Defaults to the
          identity function.
 
+    - nixFmt (String):
+         Selects which nix formatter to provide as part of the default (null)
+         devTools. Defaults to "nixpkgs-fmt". Can also be "nixfmt".
+
      Example:
       let
         pkgs = import nixpkgs { inherit system; };
@@ -162,12 +169,17 @@ in
     , baseModifier ? true
     , devTools ? null
     , modifier ? utils.id
+    # NOTE: [nixpkgs-fmt vs. nixfmt]
+    #
+    # Switch the default to nixfmt once the following issue is resolved:
+    # https://github.com/serokell/nixfmt/issues/46.
+    , nixFmt ? "nixpkgs-fmt"
     }:
     let
       pkgsCompiler = { inherit pkgs compiler; };
       devTools' =
         if devTools == null
-        then mkDevTools pkgsCompiler
+        then mkDevTools (pkgsCompiler // { inherit nixFmt; })
         else devTools;
       baseModifier' =
         if baseModifier

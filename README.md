@@ -16,7 +16,7 @@ Nix utility functions for haskell flakes.
 
 * `mkLibs` and `mkRelLibs`: convenience functions for adding packages built by `callCabal2nix`.
 * `mkDevTools`: returns a list with:
-  * formatters: `cabal-fmt`, `fourmolu`, `nixpkgs-fmt`, `ormolu`.
+  * formatters: `cabal-fmt`, `fourmolu`, `nixpkgs-fmt`/`nixfmt`, `ormolu`.
   * linters: `hlint` (with `apply-refact`).
   * `haskell-language-server`.
 * `mkHaskellPkg`: Wrapper for `developPackage`. Returns either a development shell or a derivation, depending on the value of `returnShellEnv`. Uses `mkDevTools` by default.

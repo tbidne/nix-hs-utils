@@ -18,11 +18,10 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Setup nix
-        uses: cachix/install-nix-action@v20
+        uses: cachix/install-nix-action@v25
         with:
-          nix_path: nixpkgs=https://github.com/NixOS/nixpkgs/archive/b39924fc7764c08ae3b51beef9a3518c414cdb7d.tar.gz
-          extra_nix_config: |
-            access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
+          github_access_token: ${{ secrets.GITHUB_TOKEN }}
+          nix_path: nixpkgs=channel:nixos-unstable
 
       - name: Check
         run: nix flake check
@@ -41,6 +40,17 @@ jobs:
         run: |
           cd test
           nix develop -c bash -c "cabal build && fourmolu --version"
+
+      - name: Dev shell (nixpkgs-fmt)
+        run: |
+          cd test
+          # nixpkgs-fmt --help/version returns exit code 1 for some reason...
+          nix develop .#nixpkgs-fmt -c bash -c "which nixpkgs-fmt"
+
+      - name: Dev shell (nixfmt)
+        run: |
+          cd test
+          nix develop .#nixfmt -c bash -c "nixfmt --version"
 
       - name: Format (ormolu)
         run: |
@@ -66,11 +76,19 @@ jobs:
           nix run .#formatHs
           git diff --exit-code --no-index src/Lib.hs Lib.ormolu
 
+      - name: Format (nixpkgs-fmt)
+        run: |
+          cd test
+          git checkout .
+          nix run .#format-nixpkgs-fmt
+          git diff --exit-code --no-index nix/test.nix nix/test-nixpkgs-fmt.nix
+
       - name: Format (nixfmt)
         run: |
           cd test
-          nix run .#format
-          git diff --exit-code flake.nix
+          git checkout .
+          nix run .#format-nixfmt
+          git diff --exit-code --no-index nix/test.nix nix/test-nixfmt.nix
 
       - name: Lint
         run: |
@@ -82,12 +100,12 @@ jobs:
           cd test
           nix run .#lint-find
 
-      - name: lintRefactor
+      - name: LintRefactor
         run: |
           cd test
           nix run .#lintRefactor
 
-      - name: lintRefactor (find)
+      - name: LintRefactor (find)
         run: |
           cd test
           nix run .#lintRefactor-find

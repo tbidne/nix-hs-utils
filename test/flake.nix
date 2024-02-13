@@ -25,10 +25,22 @@
           root = ./.;
         };
 
+      mkNixFmtShell = nixFmt:
+        nix-hs-utils.mkHaskellPkg {
+          inherit compiler pkgs nixFmt;
+          name = "example";
+          root = ./.;
+          returnShellEnv = true;
+        };
+
       compilerPkgs = { inherit compiler pkgs; };
     in {
       packages."${system}".default = mkShell false;
-      devShells."${system}".default = mkShell true;
+      devShells."${system}" = {
+        default = mkShell true;
+        nixpkgs-fmt = mkNixFmtShell "nixpkgs-fmt";
+        nixfmt = mkNixFmtShell "nixfmt";
+      };
 
       apps."${system}" = {
         # formatting
@@ -42,6 +54,18 @@
           fd = false;
         };
         formatHs = nix-hs-utils.formatHs compilerPkgs;
+
+        format-nixpkgs-fmt = nix-hs-utils.format {
+          inherit compiler pkgs;
+          nixFmt = "nixpkgs-fmt";
+          findNixArgs = "nix";
+        };
+
+        format-nixfmt = nix-hs-utils.format {
+          inherit compiler pkgs;
+          nixFmt = "nixfmt";
+          findNixArgs = "nix";
+        };
 
         # lint
         lint = nix-hs-utils.lint compilerPkgs;
