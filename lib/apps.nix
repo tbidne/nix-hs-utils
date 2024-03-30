@@ -66,7 +66,7 @@ in
         ${nixFmt'.cmd nixArgs}
 
         # shellcheck disable=SC2034,SC2046
-        ${compiler.cabal-fmt}/bin/cabal-fmt --inplace $(${utils.findCmd cabalArgs})
+        cabal-fmt --inplace $(${utils.findCmd cabalArgs})
 
         # shellcheck disable=SC2046
         ${hsFmt'.cmd hsArgs}
