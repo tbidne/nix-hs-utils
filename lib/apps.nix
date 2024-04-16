@@ -34,7 +34,7 @@ in
     , findNixArgs ? "."
     , hsFmt ? "ormolu"
     , name ? "format"
-    , nixFmt ? "nixpkgs-fmt"
+    , nixFmt ? "nixfmt"
     }:
     let
       cabalArgs = {

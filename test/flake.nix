@@ -4,28 +4,30 @@
   # nix
   inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
   inputs.nix-hs-utils.url = "../";
-  outputs = { nix-hs-utils, nixpkgs, self }:
+  outputs =
+    {
+      nix-hs-utils,
+      nixpkgs,
+      self,
+    }:
     let
       system = "x86_64-linux";
       pkgs = import nixpkgs { inherit system; };
 
-      ghc-version = "ghc945";
-      compiler = pkgs.haskell.packages."${ghc-version}".override {
-        overrides = final: prev: {
-          apply-refact = prev.apply-refact_0_11_0_0;
-          ormolu = prev.ormolu_0_5_3_0;
-        };
-      };
+      ghc-version = "ghc964";
+      compiler = pkgs.haskell.packages."${ghc-version}".override { overrides = final: prev: { }; };
       findHsArgs = "src";
 
-      mkShell = returnShellEnv:
+      mkShell =
+        returnShellEnv:
         nix-hs-utils.mkHaskellPkg {
           inherit compiler pkgs returnShellEnv;
           name = "example";
           root = ./.;
         };
 
-      mkNixFmtShell = nixFmt:
+      mkNixFmtShell =
+        nixFmt:
         nix-hs-utils.mkHaskellPkg {
           inherit compiler pkgs nixFmt;
           name = "example";
@@ -33,8 +35,11 @@
           returnShellEnv = true;
         };
 
-      compilerPkgs = { inherit compiler pkgs; };
-    in {
+      compilerPkgs = {
+        inherit compiler pkgs;
+      };
+    in
+    {
       packages."${system}".default = mkShell false;
       devShells."${system}" = {
         default = mkShell true;
@@ -58,13 +63,11 @@
         format-nixpkgs-fmt = nix-hs-utils.format {
           inherit compiler pkgs;
           nixFmt = "nixpkgs-fmt";
-          findNixArgs = "nix";
         };
 
         format-nixfmt = nix-hs-utils.format {
           inherit compiler pkgs;
           nixFmt = "nixfmt";
-          findNixArgs = "nix";
         };
 
         # lint

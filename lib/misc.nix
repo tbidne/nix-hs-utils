@@ -47,8 +47,7 @@ let
   mkDevTools =
     { pkgs
     , compiler
-    # see NOTE: [nixpkgs-fmt vs. nixfmt]
-    , nixFmt ? "nixpkgs-fmt"
+    , nixFmt ? "nixfmt"
     }:
     let
       hlib = pkgs.haskell.lib;
@@ -143,7 +142,7 @@ in
 
     - nixFmt (String):
          Selects which nix formatter to provide as part of the default (null)
-         devTools. Defaults to "nixpkgs-fmt". Can also be "nixfmt".
+         devTools. Defaults to "nixfmt". Can also be "nixpkgs-fmt".
 
      Example:
       let
@@ -169,11 +168,7 @@ in
     , baseModifier ? true
     , devTools ? null
     , modifier ? utils.id
-    # NOTE: [nixpkgs-fmt vs. nixfmt]
-    #
-    # Switch the default to nixfmt once the following issue is resolved:
-    # https://github.com/serokell/nixfmt/issues/46.
-    , nixFmt ? "nixpkgs-fmt"
+    , nixFmt ? "nixfmt"
     }:
     let
       pkgsCompiler = { inherit pkgs compiler; };

@@ -1,9 +1,14 @@
-{ a, bar, c ? "def" }:
+{
+  a,
+  bar,
+  c ? "def",
+}:
 
 let
   x = 4;
   y = "str";
-in {
+in
+{
   inherit y;
   z = x + 2;
 }

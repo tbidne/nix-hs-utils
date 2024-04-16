@@ -81,14 +81,14 @@ jobs:
           cd test
           git checkout .
           nix run .#format-nixpkgs-fmt
-          git diff --exit-code --no-index nix/test.nix nix/test-nixpkgs-fmt.nix
+          git diff --exit-code --no-index nix/test.nix nix/test-nixpkgs-fmt
 
       - name: Format (nixfmt)
         run: |
           cd test
           git checkout .
           nix run .#format-nixfmt
-          git diff --exit-code --no-index nix/test.nix nix/test-nixfmt.nix
+          git diff --exit-code --no-index nix/test.nix nix/test-nixfmt
 
       - name: Lint
         run: |

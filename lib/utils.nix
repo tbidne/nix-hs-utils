@@ -24,7 +24,7 @@ let
   nameToNixFmt = {
     "nixfmt" = {
       cmd = findArgs: "nixfmt $(${findCmd findArgs})";
-      dep = p: p.nixfmt;
+      dep = p: p.nixfmt-rfc-style;
     };
     "nixpkgs-fmt" = {
       cmd = findArgs: "nixpkgs-fmt $(${findCmd findArgs})";
