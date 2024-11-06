@@ -16,6 +16,10 @@ let
       runtimeInputs,
     }:
     mkApp (pkgs.writeShellApplication { inherit name text runtimeInputs; });
+
+  # Returns either a shell app derivation or the set itself.
+  drvOrSet = mkDrv: s:
+    if mkDrv then mkShellApp s else s;
 in
 {
   inherit mkApp mkShellApp;
@@ -31,6 +35,7 @@ in
       findHsArgs ? ".",
       findNixArgs ? ".",
       hsFmt ? "ormolu",
+      mkDrv ? true,
       name ? "format",
       nixFmt ? "nixfmt",
     }:
@@ -53,7 +58,7 @@ in
       };
       nixFmt' = utils.getNixFmt nixFmt;
     in
-    mkShellApp {
+    drvOrSet mkDrv {
       inherit name pkgs;
       text = ''
         set -e
@@ -85,6 +90,7 @@ in
       fd ? true,
       findHsArgs ? ".",
       hsFmt ? "ormolu",
+      mkDrv ? true,
       name ? "format",
     }:
     let
@@ -95,7 +101,7 @@ in
         ext = "hs";
       };
     in
-    mkShellApp {
+    drvOrSet mkDrv {
       inherit name pkgs;
       text = ''
         set -e
@@ -115,10 +121,11 @@ in
   format-yaml =
     {
       pkgs,
+      mkDrv ? true,
       name ? "format-yaml",
       text ? "prettier -w -- **/*yaml",
     }:
-    mkShellApp {
+    drvOrSet mkDrv {
       inherit pkgs name text;
       runtimeInputs = [ pkgs.nodePackages.prettier ];
     };
@@ -130,6 +137,7 @@ in
       pkgs,
       fd ? true,
       findHsArgs ? ".",
+      mkDrv ? true,
       name ? "lint",
     }:
     let
@@ -139,7 +147,7 @@ in
         ext = "hs";
       };
     in
-    mkShellApp {
+    drvOrSet mkDrv {
       inherit name pkgs;
       text = ''
         set -e
@@ -163,6 +171,7 @@ in
       pkgs,
       fd ? true,
       findHsArgs ? ".",
+      mkDrv ? true,
       name ? "lint-refactor",
     }:
     let
@@ -172,7 +181,7 @@ in
         ext = "hs";
       };
     in
-    mkShellApp {
+    drvOrSet mkDrv {
       inherit name pkgs;
       text = ''
         set -e
@@ -200,10 +209,11 @@ in
   lint-yaml =
     {
       pkgs,
+      mkDrv ? true,
       name ? "lint-yaml",
       text ? "yamllint .",
     }:
-    mkShellApp {
+    drvOrSet mkDrv {
       inherit pkgs name text;
       runtimeInputs = [ pkgs.yamllint ];
     };

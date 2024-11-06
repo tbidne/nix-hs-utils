@@ -125,3 +125,27 @@ Nix utility functions for haskell flakes.
     };
 }
 ```
+
+Note that we can also merge multiple apps together, using the `mkDrv` argument (default `true`):
+
+```nix
+let
+  # setting 'mkDrv = false' means that instead of the derivation, we will return
+  # the preliminary set.
+  formatHsNix = nix-hs-utils.format { ... mkDrv = false; ... };
+  formatYaml = nix-hs-utils.format-yaml { ... mkDrv = false; ... };
+
+  # Because of 'mkDrv = false', we need to call mkShellApp ourselves.
+  format = nix-hs-utils.mkShellApp {
+    inherit pkgs;
+    name = "format";
+
+    # Now we can combine the command and inputs in a straightforward manner.
+    text = ''
+      ${formatHsNix.text}
+
+      ${formatYaml.text}
+    '';
+    runtimeInputs = formatHsNix.runtimeInputs ++ formatYaml.runtimeInputs;
+  };
+```
