@@ -17,9 +17,9 @@
         mkHaskellPkg;
       inherit (libApps)
         format
-        formatHs
+        format-hs
         lint
-        lintRefactor
+        lint-refactor
         mkApp
         mkShellApp;
     };

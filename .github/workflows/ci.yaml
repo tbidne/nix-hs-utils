@@ -70,10 +70,10 @@ jobs:
           nix run .#format-find
           git diff --exit-code --no-index src/Lib.hs Lib.ormolu
 
-      - name: FormatHs
+      - name: Format hs
         run: |
           cd test
-          nix run .#formatHs
+          nix run .#format-hs
           git diff --exit-code --no-index src/Lib.hs Lib.ormolu
 
       - name: Format (nixpkgs-fmt)
@@ -100,12 +100,12 @@ jobs:
           cd test
           nix run .#lint-find
 
-      - name: LintRefactor
+      - name: lint-refactor
         run: |
           cd test
-          nix run .#lintRefactor
+          nix run .#lint-refactor
 
-      - name: LintRefactor (find)
+      - name: lint-refactor (find)
         run: |
           cd test
-          nix run .#lintRefactor-find
+          nix run .#lint-refactor-find

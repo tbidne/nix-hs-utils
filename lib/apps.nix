@@ -80,7 +80,7 @@ in
       ];
     };
 
-  formatHs =
+  format-hs =
     { compiler
     , pkgs
     , fd ? true
@@ -142,12 +142,12 @@ in
     };
 
   # ShellApp that runs hlint + refactor on findHsArgs.
-  lintRefactor =
+  lint-refactor =
     { compiler
     , pkgs
     , fd ? true
     , findHsArgs ? "."
-    , name ? "lintRefactor"
+    , name ? "lint-refactor"
     }:
     let
       hsArgs = {

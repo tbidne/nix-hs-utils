@@ -58,7 +58,7 @@
           inherit compiler findHsArgs pkgs;
           fd = false;
         };
-        formatHs = nix-hs-utils.formatHs compilerPkgs;
+        format-hs = nix-hs-utils.format-hs compilerPkgs;
 
         format-nixpkgs-fmt = nix-hs-utils.format {
           inherit compiler pkgs;
@@ -77,9 +77,9 @@
           fd = false;
         };
 
-        # lintRefactor
-        lintRefactor = nix-hs-utils.lintRefactor compilerPkgs;
-        lintRefactor-find = nix-hs-utils.lintRefactor {
+        # lint-refactor
+        lint-refactor = nix-hs-utils.lint-refactor compilerPkgs;
+        lint-refactor-find = nix-hs-utils.lint-refactor {
           inherit compiler findHsArgs pkgs;
           fd = false;
         };
