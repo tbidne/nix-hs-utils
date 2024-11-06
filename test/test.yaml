@@ -1,0 +1,3 @@
+---
+- weird_indent:      "some stuff" # yamllint disable-line rule:colons rule:comments rule:line-length
+  fine: "val"

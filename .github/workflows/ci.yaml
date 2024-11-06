@@ -90,6 +90,12 @@ jobs:
           nix run .#format-nixfmt
           git diff --exit-code --no-index nix/test.nix nix/test-nixfmt
 
+      - name: Format yaml
+        run: |
+          cd test
+          nix run .#format-yaml
+          git diff --exit-code --no-index test.yaml test.yaml.out
+
       - name: Lint
         run: |
           cd test
@@ -100,12 +106,17 @@ jobs:
           cd test
           nix run .#lint-find
 
-      - name: lint-refactor
+      - name: Lint refactor
         run: |
           cd test
           nix run .#lint-refactor
 
-      - name: lint-refactor (find)
+      - name: Lint refactor (find)
         run: |
           cd test
           nix run .#lint-refactor-find
+
+      - name: Lint yaml
+        run: |
+          cd test
+          nix run .#lint-yaml

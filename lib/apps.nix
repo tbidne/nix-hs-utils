@@ -112,6 +112,17 @@ in
       ];
     };
 
+  format-yaml =
+    {
+      pkgs,
+      name ? "format-yaml",
+      text ? "prettier -w -- **/*yaml",
+    }:
+    mkShellApp {
+      inherit pkgs name text;
+      runtimeInputs = [ pkgs.nodePackages.prettier ];
+    };
+
   # ShellApp that runs hlint on findHsArgs.
   lint =
     {
@@ -184,5 +195,16 @@ in
         pkgs.fd
         pkgs.findutils
       ];
+    };
+
+  lint-yaml =
+    {
+      pkgs,
+      name ? "lint-yaml",
+      text ? "yamllint .",
+    }:
+    mkShellApp {
+      inherit pkgs name text;
+      runtimeInputs = [ pkgs.yamllint ];
     };
 }

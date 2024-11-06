@@ -20,8 +20,10 @@
       inherit (libApps)
         format
         format-hs
+        format-yaml
         lint
         lint-refactor
+        lint-yaml
         mkApp
         mkShellApp
         ;

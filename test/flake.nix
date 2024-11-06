@@ -70,6 +70,8 @@
           nixFmt = "nixfmt";
         };
 
+        format-yaml = nix-hs-utils.format-yaml { inherit pkgs; };
+
         # lint
         lint = nix-hs-utils.lint compilerPkgs;
         lint-find = nix-hs-utils.lint {
@@ -83,6 +85,8 @@
           inherit compiler findHsArgs pkgs;
           fd = false;
         };
+
+        lint-yaml = nix-hs-utils.lint-yaml { inherit pkgs; };
       };
     };
 }
