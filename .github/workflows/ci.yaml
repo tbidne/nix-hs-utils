@@ -120,3 +120,8 @@ jobs:
         run: |
           cd test
           nix run .#lint-yaml
+
+      - name: Lint merged
+        run: |
+          cd test
+          nix run .#lint-merged

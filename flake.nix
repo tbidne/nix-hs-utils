@@ -26,6 +26,7 @@
         lint-yaml
         mkApp
         mkShellApp
+        mergeApps
         ;
     };
 }

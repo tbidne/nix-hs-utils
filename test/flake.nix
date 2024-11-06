@@ -38,6 +38,10 @@
       compilerPkgs = {
         inherit compiler pkgs;
       };
+      pkgsMkDrv = {
+        inherit pkgs;
+        mkDrv = false;
+      };
     in
     {
       packages."${system}".default = mkShell false;
@@ -87,6 +91,13 @@
         };
 
         lint-yaml = nix-hs-utils.lint-yaml { inherit pkgs; };
+
+        lint-merged = nix-hs-utils.mergeApps {
+          apps = [
+            (nix-hs-utils.lint (compilerPkgs // pkgsMkDrv))
+            (nix-hs-utils.lint-yaml pkgsMkDrv)
+          ];
+        };
       };
     };
 }

@@ -18,11 +18,89 @@ let
     mkApp (pkgs.writeShellApplication { inherit name text runtimeInputs; });
 
   # Returns either a shell app derivation or the set itself.
-  drvOrSet = mkDrv: s:
-    if mkDrv then mkShellApp s else s;
+  drvOrSet = mkDrv: s: if mkDrv then mkShellApp s else s;
+
+  /*
+    Merges a list of attr sets representing shell apps into a single app.
+
+    Fields:
+
+    - apps (List AttrSet):
+        NonEmpty list of AttrSet shell apps. Each app requires the 'text'
+        and 'runtimeInputs' fields.
+
+    - mkDrv (Boolean):
+        If true (default), returns a derivation i.e. the shell app. Otherwise
+        returns the merged set.
+
+    - name (String):
+        The name to use for the merged app. If null or unspecified, we take
+        the name of the __first__ app with a non-null name. At least one name
+        is required.
+
+    - pkgs (AttrSet):
+        The nixpkgs for creating the shell app. Follows the same semantics
+        as name.
+
+    Example:
+      a1 = ...
+      a2 = ...
+      a3 = ...
+
+      app = mergeApps { apps = [a1 a2 a3]; };
+
+    Type: mkLibs ::
+            List AttrSet ->
+            Boolean ->
+            Maybe String ->
+            Maybe AttrSet ->
+            (AttrSet | Derivation)
+  */
+  mergeApps =
+    {
+      apps,
+      mkDrv ? true,
+      name ? null,
+      pkgs ? null,
+    }:
+    let
+      init = {
+        inherit name pkgs;
+        text = "";
+        runtimeInputs = [ ];
+      };
+      mergeApp = acc: app: {
+        # Take the first non-null name we find. Apps are not required to
+        # have a name, but we need at least one (or top-level) name.
+        name =
+          if acc.name != null then
+            acc.name
+          else if app ? name then
+            app.name
+          else
+            acc.name;
+
+        # Same semantics as name: Take the first non-null or top-level.
+        pkgs =
+          if acc.pkgs != null then
+            acc.pkgs
+          else if app ? pkgs then
+            app.pkgs
+          else
+            acc.pkgs;
+
+        text = ''
+          ${acc.text}
+
+          ${app.text}
+        '';
+        runtimeInputs = acc.runtimeInputs ++ app.runtimeInputs;
+      };
+    in
+    drvOrSet mkDrv (builtins.foldl' mergeApp init apps);
 in
 {
-  inherit mkApp mkShellApp;
+  inherit mkApp mkShellApp mergeApps;
 
   # ShellApp that formats cabal, nix, and haskell via ormolu (default) or
   # fourmolu.
