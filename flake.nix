@@ -1,7 +1,8 @@
 {
   description = "Utility functions for defining nix haskell flakes";
 
-  outputs = { self }:
+  outputs =
+    { self }:
     let
       libApps = import lib/apps.nix;
       misc = import lib/misc.nix;
@@ -14,13 +15,15 @@
         mkRelLibs
         mkBuildTools
         mkDevTools
-        mkHaskellPkg;
+        mkHaskellPkg
+        ;
       inherit (libApps)
         format
         format-hs
         lint
         lint-refactor
         mkApp
-        mkShellApp;
+        mkShellApp
+        ;
     };
 }

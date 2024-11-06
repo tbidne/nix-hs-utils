@@ -9,16 +9,13 @@ let
 
   # Convenience function for making an app from a writeShellApplication.
   mkShellApp =
-    { name
-    , pkgs
-    , text
-    , runtimeInputs
+    {
+      name,
+      pkgs,
+      text,
+      runtimeInputs,
     }:
-    mkApp (
-      pkgs.writeShellApplication {
-        inherit name text runtimeInputs;
-      }
-    );
+    mkApp (pkgs.writeShellApplication { inherit name text runtimeInputs; });
 in
 {
   inherit mkApp mkShellApp;
@@ -26,15 +23,16 @@ in
   # ShellApp that formats cabal, nix, and haskell via ormolu (default) or
   # fourmolu.
   format =
-    { compiler
-    , pkgs
-    , fd ? true
-    , findCabalArgs ? "."
-    , findHsArgs ? "."
-    , findNixArgs ? "."
-    , hsFmt ? "ormolu"
-    , name ? "format"
-    , nixFmt ? "nixfmt"
+    {
+      compiler,
+      pkgs,
+      fd ? true,
+      findCabalArgs ? ".",
+      findHsArgs ? ".",
+      findNixArgs ? ".",
+      hsFmt ? "ormolu",
+      name ? "format",
+      nixFmt ? "nixfmt",
     }:
     let
       cabalArgs = {
@@ -81,12 +79,13 @@ in
     };
 
   format-hs =
-    { compiler
-    , pkgs
-    , fd ? true
-    , findHsArgs ? "."
-    , hsFmt ? "ormolu"
-    , name ? "format"
+    {
+      compiler,
+      pkgs,
+      fd ? true,
+      findHsArgs ? ".",
+      hsFmt ? "ormolu",
+      name ? "format",
     }:
     let
       hsFmt' = utils.getHsFmt hsFmt;
@@ -115,11 +114,12 @@ in
 
   # ShellApp that runs hlint on findHsArgs.
   lint =
-    { compiler
-    , pkgs
-    , fd ? true
-    , findHsArgs ? "."
-    , name ? "lint"
+    {
+      compiler,
+      pkgs,
+      fd ? true,
+      findHsArgs ? ".",
+      name ? "lint",
     }:
     let
       hsArgs = {
@@ -138,16 +138,21 @@ in
         # shellcheck disable=SC2046
         hlint $(${utils.findCmd hsArgs})
       '';
-      runtimeInputs = [ compiler.hlint pkgs.fd pkgs.findutils ];
+      runtimeInputs = [
+        compiler.hlint
+        pkgs.fd
+        pkgs.findutils
+      ];
     };
 
   # ShellApp that runs hlint + refactor on findHsArgs.
   lint-refactor =
-    { compiler
-    , pkgs
-    , fd ? true
-    , findHsArgs ? "."
-    , name ? "lint-refactor"
+    {
+      compiler,
+      pkgs,
+      fd ? true,
+      findHsArgs ? ".",
+      name ? "lint-refactor",
     }:
     let
       hsArgs = {

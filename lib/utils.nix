@@ -1,12 +1,17 @@
 let
-  showKeys = attrs:
-    let attrKeys = builtins.attrNames attrs;
-    in builtins.concatStringsSep ", " attrKeys;
+  showKeys =
+    attrs:
+    let
+      attrKeys = builtins.attrNames attrs;
+    in
+    builtins.concatStringsSep ", " attrKeys;
 
-  lookupOrDie = mp: key: keyName:
-    if mp ? ${key}
-    then mp.${key}
-    else throw "Invalid ${keyName}: '${key}'; valid keys are ${showKeys mp}.";
+  lookupOrDie =
+    mp: key: keyName:
+    if mp ? ${key} then
+      mp.${key}
+    else
+      throw "Invalid ${keyName}: '${key}'; valid keys are ${showKeys mp}.";
 
   nameToHsFmt = {
     "ormolu" = {
@@ -34,10 +39,12 @@ let
 
   getNixFmt = nixFmtName: lookupOrDie nameToNixFmt nixFmtName "nix formatter";
 
-  findCmd = args:
-    if args.fd
-    then "fd ${args.findArgs} -e ${args.ext}"
-    else "find ${args.findArgs} -type f -name '*${args.ext}'";
+  findCmd =
+    args:
+    if args.fd then
+      "fd ${args.findArgs} -e ${args.ext}"
+    else
+      "find ${args.findArgs} -type f -name '*${args.ext}'";
 in
 {
   inherit findCmd getHsFmt getNixFmt;
