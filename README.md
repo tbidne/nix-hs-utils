@@ -1,12 +1,13 @@
+<div align="center">
+
 # Nix HS Utils
 
-[![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/tbidne/nix-hs-utils?include_prereleases&sort=semver&labelColor=2f353e)](https://github.com/tbidne/nix-hs-utils/releases/)
 [![ci](http://img.shields.io/github/actions/workflow/status/tbidne/nix-hs-utils/ci.yaml?branch=main)](https://github.com/tbidne/nix-hs-utils/actions/workflows/ci.yaml)
 [![MIT](https://img.shields.io/github/license/tbidne/nix-hs-utils?color=blue&labelColor=2f353e)](https://opensource.org/licenses/MIT)
 
----
+### Nix utility functions for Haskell flakes
 
-Nix utility functions for haskell flakes.
+</div>
 
 # Schema
 
@@ -41,6 +42,7 @@ Nix utility functions for haskell flakes.
 
 * `mkShellApp`: Makes an app via `writeShellApplication`.
 * `mkApp`: Makes an app via a derivation.
+* `mergeApps`: Merges multiple apps together.
 
 # Example usage
 
@@ -128,18 +130,20 @@ Nix utility functions for haskell flakes.
 }
 ```
 
-Note that we can also merge multiple apps together, using the `mkDrv` argument (default `true`) and `mergeApps`:
-
-```nix
-let
-  # mergeApps takes in a list of app AttrSet and merges them together into a
-  # single app.
-  format = nix-hs-utils.mergeApps {
-    apps = [
-      # setting 'mkDrv = false' means that instead of the derivation, we
-      # will return the preliminary set.
-      (nix-hs-utils.format ({ ... mkDrv = false; ... }))
-      (nix-hs-utils.format-yaml ({ ... mkDrv = false; ... }))
-    ];
-  };
-```
+> [!TIP]
+>
+> We can also merge multiple apps together, using the `mkDrv` argument (default `true`) and `mergeApps`:
+>
+> ```nix
+> let
+>   # mergeApps takes in a list of app AttrSet and merges them together into a
+>   # single app.
+>   format = nix-hs-utils.mergeApps {
+>     apps = [
+>       # setting 'mkDrv = false' means that instead of the derivation, we
+>       # will return the preliminary set.
+>       (nix-hs-utils.format ({ ... mkDrv = false; ... }))
+>       (nix-hs-utils.format-yaml ({ ... mkDrv = false; ... }))
+>     ];
+>   };
+> ```
