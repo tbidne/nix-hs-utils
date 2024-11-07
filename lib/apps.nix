@@ -29,6 +29,10 @@ let
         NonEmpty list of AttrSet shell apps. Each app requires the 'text'
         and 'runtimeInputs' fields.
 
+    - annotate (Boolean):
+        If true (false), prepends each app text with the app's name,
+        falling back to a placeholder if no name exists.
+
     - mkDrv (Boolean):
         If true (default), returns a derivation i.e. the shell app. Otherwise
         returns the merged set.
@@ -52,6 +56,7 @@ let
     Type: mkLibs ::
             List AttrSet ->
             Boolean ->
+            Boolean ->
             Maybe String ->
             Maybe AttrSet ->
             (AttrSet | Derivation)
@@ -59,6 +64,7 @@ let
   mergeApps =
     {
       apps,
+      annotate ? false,
       mkDrv ? true,
       name ? null,
       pkgs ? null,
@@ -69,33 +75,47 @@ let
         text = "";
         runtimeInputs = [ ];
       };
-      mergeApp = acc: app: {
-        # Take the first non-null name we find. Apps are not required to
-        # have a name, but we need at least one (or top-level) name.
-        name =
-          if acc.name != null then
-            acc.name
-          else if app ? name then
-            app.name
-          else
-            acc.name;
+      mergeApp =
+        acc: app:
+        let
+          appName = if app ? name then if app.name == null then "<null>" else app.name else "<unnamed>";
 
-        # Same semantics as name: Take the first non-null or top-level.
-        pkgs =
-          if acc.pkgs != null then
-            acc.pkgs
-          else if app ? pkgs then
-            app.pkgs
-          else
-            acc.pkgs;
+          appText =
+            if annotate then
+              ''
+                # *** App: ${appName} ***
+                ${app.text}
+              ''
+            else
+              app.text;
+        in
+        {
+          # Take the first non-null name we find. Apps are not required to
+          # have a name, but we need at least one (or top-level) name.
+          name =
+            if acc.name != null then
+              acc.name
+            else if app ? name then
+              app.name
+            else
+              acc.name;
 
-        text = ''
-          ${acc.text}
+          # Same semantics as name: Take the first non-null or top-level.
+          pkgs =
+            if acc.pkgs != null then
+              acc.pkgs
+            else if app ? pkgs then
+              app.pkgs
+            else
+              acc.pkgs;
 
-          ${app.text}
-        '';
-        runtimeInputs = acc.runtimeInputs ++ app.runtimeInputs;
-      };
+          text = ''
+            ${acc.text}
+
+            ${appText}
+          '';
+          runtimeInputs = acc.runtimeInputs ++ app.runtimeInputs;
+        };
     in
     drvOrSet mkDrv (builtins.foldl' mergeApp init apps);
 in
