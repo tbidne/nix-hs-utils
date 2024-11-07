@@ -32,8 +32,10 @@ Nix utility functions for haskell flakes.
 
 * `format`: formats `*.cabal`, `*.nix`, and `*.hs` (`ormolu` or `fourmolu`).
 * `format-hs`: formats `*.hs` (`ormolu` or `fourmolu`).
+* `format-yaml`: formats `*.yaml` (`prettier`).
 * `lint`: Runs `hlint` on `*.hs`.
 * `lint-refactor`: Runs `hlint` on `*.hs`, refactoring suggestions.
+* `lint-yaml`: Runs `yamllint` on `.`.
 
 ### Low level
 
@@ -130,17 +132,14 @@ Note that we can also merge multiple apps together, using the `mkDrv` argument (
 
 ```nix
 let
-  # setting 'mkDrv = false' means that instead of the derivation, we will return
-  # the preliminary set.
-  formatHsNix = nix-hs-utils.format { ... mkDrv = false; ... };
-  formatYaml = nix-hs-utils.format-yaml { ... mkDrv = false; ... };
-
   # mergeApps takes in a list of app AttrSet and merges them together into a
   # single app.
   format = nix-hs-utils.mergeApps {
     apps = [
-      (nix-hs-utils.format (compilerPkgs // pkgsMkDrv))
-      (nix-hs-utils.format-yaml pkgsMkDrv)
+      # setting 'mkDrv = false' means that instead of the derivation, we
+      # will return the preliminary set.
+      (nix-hs-utils.format ({ ... mkDrv = false; ... }))
+      (nix-hs-utils.format-yaml ({ ... mkDrv = false; ... }))
     ];
   };
 ```
