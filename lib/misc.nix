@@ -181,6 +181,7 @@ in
       devTools ? null,
       modifier ? utils.id,
       nixFmt ? "nixfmt",
+      source-overrides ? {},
     }:
     let
       pkgsCompiler = {
@@ -198,7 +199,7 @@ in
       modifier' = drv: modifier (baseModifier' drv);
     in
     compiler.developPackage {
-      inherit name root returnShellEnv;
+      inherit name root returnShellEnv source-overrides;
       modifier = modifier';
     };
 }
