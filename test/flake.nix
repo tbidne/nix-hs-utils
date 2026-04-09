@@ -3,7 +3,7 @@
 
   # nix
   inputs.nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-  inputs.nix-hs-utils.url = "../";
+  inputs.nix-hs-utils.url = "github:tbidne/nix-hs-utils";
   outputs =
     {
       nix-hs-utils,
@@ -14,7 +14,7 @@
       system = "x86_64-linux";
       pkgs = import nixpkgs { inherit system; };
 
-      ghc-version = "ghc964";
+      ghc-version = "ghc9123";
       compiler = pkgs.haskell.packages."${ghc-version}".override { overrides = final: prev: { }; };
       findHsArgs = "src";
 
